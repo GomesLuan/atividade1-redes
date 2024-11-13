@@ -9,18 +9,15 @@ IP = "127.0.0.1"
 # definindo a porta do servidor
 PORTANUMERO = 2102
 
-# criando um socket Internet (INET IPv4) sobre TCP
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+# criando um socket Internet (INET IPv4) sobre UDP
+s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-# conectando ao servidor
-s.connect((IP, PORTANUMERO))
-
-# enviando a requisicao
+# enviando a requisição para o servidor
 msg = "horaAtual".encode("ISO-8859-1")
-s.send(msg)
+s.sendto(msg, (IP, PORTANUMERO))
 
-# recebendo a hora do servidor
-buffer = s.recv(500)
+# recebendo a resposta do servidor
+buffer, server_address = s.recvfrom(500)
 
 # imprimindo a hora recebida
 print("Hora certa: %s" % buffer.decode("ISO-8859-1"))
