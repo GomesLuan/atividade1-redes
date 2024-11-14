@@ -1,8 +1,4 @@
-# importando o modulo socket
 import socket
-
-import datetime
-
 from nsip import *
 
 # definindo a porta do servidor
@@ -17,15 +13,29 @@ s.bind(("", PORTANUMERO))
 print("Servidor escutando conexoes UDP na porta: %d\n" % PORTANUMERO)
 
 while True:
-    # aguardando requisicao 
-    buffer, clientaddress = s.recvfrom(500)
-    print("Recebida uma mensagem do endereço %s" % clientaddress[0])
+    # Recebe o pacote de requisição do cliente
+    buffer, client_address = s.recvfrom(500)
+    req_packet = NSIPPacket()
+    req_packet.from_packet(buffer)
+    print("Requisição recebida do cliente")
+    req_packet.print()
 
-    # formatando a hora atual
-    hora_atual = datetime.datetime.now()
-    hora_atual_bytes = hora_atual.strftime("%c").encode("ISO-8859-1")
+    # Cria a resposta baseado na consulta recebida
+    if req_packet.query == SYS_PROCNUM:
+        result = str(len(psutil.pids()))
+    else:
+        result = "Consulta não suportada"
 
-    print("Enviando a hora atual: %s\n" % hora_atual)
+    # Prepara o pacote de resposta
+    rep_packet = NSIPPacket(
+        id=req_packet.id,
+        type=NSIP_REP,
+        query=req_packet.query,
+        result=result
+    )
+    rep_packet.checksum = checksum(rep_packet.to_packet())
 
-    # enviando a hora para o cliente
-    s.sendto(hora_atual_bytes, clientaddress)
+    # Envia o pacote de resposta de volta ao cliente
+    s.sendto(rep_packet.to_packet(), client_address)
+    print("Resposta enviada ao cliente.")
+    rep_packet.print()
