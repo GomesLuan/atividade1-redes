@@ -11,7 +11,7 @@ PORTANUMERO = 2102
 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 # criando um pacote de requisição NSIP
-packet = NSIPPacket(id=1, type=NSIP_REQ, query=SYS_PROCNUM, result="")
+packet = NSIPPacket(id=1, type=NSIP_REQ, query=SYS_BOOTIME, result="")
 packet.checksum = checksum(packet.to_packet())
 print("Pacote de requisição:")
 packet.print()

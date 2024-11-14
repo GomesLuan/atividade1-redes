@@ -1,4 +1,5 @@
 import socket
+import datetime
 from nsip import *
 
 # definindo a porta do servidor
@@ -18,7 +19,8 @@ def process_request(packet):
         if packet.query == SYS_PROCNUM:
             packet.result = str(len(psutil.pids()))
         elif packet.query == SYS_BOOTIME:
-            packet.result = str(psutil.boot_time())
+            boot_time = datetime.datetime.fromtimestamp(psutil.boot_time())
+            packet.result = boot_time.strftime("%Y-%m-%d %H:%M:%S")
         elif packet.query == CPU_COUNT:
             packet.result = str(psutil.cpu_count())
         elif packet.query == CPU_PERCT:
