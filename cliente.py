@@ -11,24 +11,30 @@ PORTANUMERO = 2102
 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 # criando um pacote de requisição NSIP
-req_packet = NSIPPacket(id=1, type=NSIP_REQ, query=SYS_PROCNUM, result="")
-req_packet.checksum = checksum(req_packet.to_packet())
+packet = NSIPPacket(id=1, type=NSIP_REQ, query=SYS_PROCNUM, result="")
+packet.checksum = checksum(packet.to_packet())
 print("Pacote de requisição:")
-req_packet.print()
+packet.print()
 
 # enviando o pacote de requisição para o servidor
-s.sendto(req_packet.to_packet(), (IP, PORTANUMERO))
+s.sendto(packet.to_packet(), (IP, PORTANUMERO))
 
 # recebendo o pacote de resposta do servidor
 buffer, server_address = s.recvfrom(500)
 
 # convertendo o pacote recebido em um objeto NSIPPacket
-response_packet = NSIPPacket()
-response_packet.from_packet(buffer)
+packet.from_packet(buffer)
+
+# Verificação através do checksum
+original_checksum = packet.checksum
+recalculated_checksum = checksum(packet.to_packet())
+if recalculated_checksum != original_checksum:
+    packet.type = NSIP_ERR
+    packet.result = "Checksum inválido"
 
 #Imprimindo o pacote
 print("Pacote recebido do servidor:")
-response_packet.print()
+packet.print()
 
 # fechando o socket
 s.close()
